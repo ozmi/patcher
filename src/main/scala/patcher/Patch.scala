@@ -1,6 +1,6 @@
 package patcher
 
-trait Patch [T] {
+trait Patch [+T] {
 
     def isEmpty : Boolean
 
@@ -10,9 +10,9 @@ trait Patch [T] {
 
 object Patch {
 
-    def empty [T] : Patch [T] = new Patch [T] {
+    val empty : Patch [Nothing] = new Patch [Nothing] {
         override val isEmpty : Boolean = true
-        override val invert : Patch[T] = this
+        override val invert : Patch [Nothing] = this
     }
 
     case class Full [T] (from : T, to : T) extends Patch [T] {
@@ -20,12 +20,12 @@ object Patch {
         override lazy val invert : Patch [T] = Full (to, from)
     }
 
-    implicit class RichPatch [T] (val patch : Patch [T]) extends AnyVal {
-        def minimize : Patch [T] =
+    implicit class RichPatch [P <: Patch [_]] (val patch : P) extends AnyVal {
+        def minimize : Option [P] =
             if (patch.isEmpty) {
-                Patch.empty
+                None
             } else {
-                patch
+                Some (patch)
             }
     }
 

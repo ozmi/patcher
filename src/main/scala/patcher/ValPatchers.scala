@@ -7,7 +7,7 @@ trait ValPatchers {
     }
 
     implicit object BooleanPatcher extends Patcher [Boolean, BooleanPatch] {
-        override def calculate (from : Boolean, to : Boolean) : BooleanPatch = BooleanPatch (to == from)
+        override def calculate (from : Boolean, to : Boolean) : Option [BooleanPatch] = BooleanPatch (to == from).minimize
         override def apply (from : Boolean, patch : BooleanPatch) : Boolean = if (patch.isEmpty) from else !from
     }
 
@@ -17,14 +17,22 @@ trait ValPatchers {
     }
 
     implicit object IntPatcher extends Patcher [Int, IntPatch] {
-        override def calculate (from : Int, to : Int) : IntPatch = IntPatch (to - from)
+        override def calculate (from : Int, to : Int) : Option [IntPatch] = IntPatch (to - from).minimize
         override def apply (from : Int, patch : IntPatch) : Int = from + patch.delta
     }
+
+    class DealPatch [F1 <: Patch [Int]] (qty : Option [F1])
 
 }
 
 object ValPatchers extends ValPatchers {
 
     val patch = calculatePatch (true, false)
+    val to = patch match {
+        case Some (p) => applyPatch (true, p)
+        case None => ???
+    }
+
+    val dp = new DealPatch (calculatePatch (1, 5))
 
 }
