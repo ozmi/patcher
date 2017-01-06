@@ -1,4 +1,4 @@
-name := "delta"
+name := "patcher"
 
 version := "1.0"
 
