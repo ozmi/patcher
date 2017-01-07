@@ -21,18 +21,15 @@ trait ValPatchers {
         override def apply (from : Int, patch : IntPatch) : Int = from + patch.delta
     }
 
-    class DealPatch [F1 <: Patch [Int]] (qty : Option [F1])
+    implicit def optionPatcher [T, P <: Patch [T]] (implicit valuePatcher : Patcher [T, P]) : OptionPatcher [T, P] =
+        OptionPatcher (valuePatcher)
 
 }
 
 object ValPatchers extends ValPatchers {
 
-    val patch = calculatePatch (true, false)
-    val to = patch match {
-        case Some (p) => applyPatch (true, p)
-        case None => ???
-    }
+    val patch = diff (Option (true), Option (false)) (optionPatcher (BooleanPatcher))
 
-    val dp = new DealPatch (calculatePatch (1, 5))
+    println (patch)
 
 }
